@@ -50,6 +50,45 @@ router.post('/cover/:storyId', (async (req, res) => {
   }
 }) as RequestHandler);
 
+router.post('/pages/:storyId', (async (req, res) => {
+  const { storyId } = req.params;
+
+  try {
+    const story = await prisma.story.findUnique({
+      where: {
+        id: storyId
+      }
+    });
+
+    if (!story) {
+      return res.status(404).json({ error: 'Story not found' });
+    }
+
+    const { url, key } = await illustrationGenerator.generateIllustration({
+      storyTitle: story.title,
+      storyContent: story.content,
+      type: 'illustration'
+    });
+
+    const image = await prisma.illustration.create({
+      data: {
+        url: url,
+        s3Key: key,
+        storyId,
+        type: 'illustration'
+      }
+    });
+
+    res.status(201).json(image);
+  } catch (error: any) {
+    console.error('Error generating page illustration:', error);
+    res.status(500).json({
+      error: 'Failed to generate page illustration',
+      details: error.message
+    });
+  }
+}) as RequestHandler);
+
 //TODO: Add routes for other illustration types
 
 export default router;

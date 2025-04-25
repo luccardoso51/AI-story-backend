@@ -77,6 +77,9 @@ function createIllustrationPrompt(prompt: IllustrationPrompt): string {
     2. Do NOT create duplicated or mirrored content within the same image
     3. Fill the entire square canvas with a single unified illustration, ensuring no borders or empty spaces are left
     4. Use cartoon style with vibrant colors and simple shapes suitable for children
+    5. Do NOT include any text or words in the image
+    6. Include key elements or characters from the story, such as a brave knight or a magical forest
+    7. Use a color palette that matches the story's tone, like warm and vibrant colors for a happy story
     
     The image should depict this story excerpt: ${relevantPart.substring(
       0,
