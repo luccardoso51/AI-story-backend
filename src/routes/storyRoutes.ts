@@ -203,12 +203,16 @@ router.get('/user/:userId', (async (req, res) => {
 // Delete a story (with user verification)
 router.delete('/:id', (async (req, res) => {
   const { id } = req.params;
-  const { userId } = req.body; // In real app, this would come from auth token
+  // const { userId } = req.body; // In real app, this would come from auth token
+  const userId = 'd5cc9ace-4d00-442f-b364-ec1f1908df3a';
 
   try {
     // First check if story exists and belongs to user
     const story = await prisma.story.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        illustrations: true
+      }
     });
 
     if (!story) {
@@ -221,12 +225,21 @@ router.delete('/:id', (async (req, res) => {
         .json({ error: 'Not authorized to delete this story' });
     }
 
+    // First delete all related illustrations
+    if (story.illustrations.length > 0) {
+      await prisma.illustration.deleteMany({
+        where: { storyId: id }
+      });
+    }
+
+    // Then delete the story
     await prisma.story.delete({
       where: { id }
     });
 
     res.json({ message: 'Story deleted successfully' });
   } catch (error) {
+    console.error('Error deleting story:', error);
     res.status(500).json({ error: 'Failed to delete story' });
   }
 }) as RequestHandler);
