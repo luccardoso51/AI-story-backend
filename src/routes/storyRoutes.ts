@@ -90,6 +90,11 @@ router.get('/', async (req, res) => {
             url: true,
             type: true
           }
+        },
+        audio: {
+          select: {
+            url: true
+          }
         }
       }
     });
@@ -242,6 +247,35 @@ router.delete('/:id', (async (req, res) => {
     console.error('Error deleting story:', error);
     res.status(500).json({ error: 'Failed to delete story' });
   }
+}) as RequestHandler);
+
+router.post('/generate-audio/:storyId', (async (req, res) => {
+  const { storyId } = req.params;
+  const story = await prisma.story.findUnique({
+    where: { id: storyId }
+  });
+
+  if (!story) {
+    return res.status(404).json({ error: 'Story not found' });
+  }
+
+  const s3Url = await storyGenerator.generateStoryAudio(story.content);
+
+  await prisma.audio.create({
+    data: {
+      url: s3Url,
+      s3Key: s3Url,
+      storyId: story.id
+    }
+  });
+
+  res.status(200).json({
+    message: 'Audio generated successfully',
+    audio: {
+      url: s3Url,
+      s3Key: s3Url
+    }
+  });
 }) as RequestHandler);
 
 export default router;

@@ -1,4 +1,9 @@
 import OpenAI from 'openai';
+import fs from 'fs';
+import path from 'path';
+import { uploadAudioToS3 } from '../utils/s3Service';
+
+const speechFile = path.resolve('./speech.mp3');
 
 export interface StoryPrompt {
   ageRange: string;
@@ -52,6 +57,25 @@ export class StoryGeneratorService {
       // For other errors, throw with more context
       throw new Error(`Story generation failed: ${error.message}`);
     }
+  }
+
+  async generateStoryAudio(storyContent: string) {
+    const response = await this.openai.audio.speech.create({
+      model: 'tts-1',
+      voice: 'nova',
+      input: storyContent,
+      instructions:
+        'Speak in a cheerful and positive tone. Make it sound like a childrens book.'
+    });
+
+    console.log(response);
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+    await fs.promises.writeFile(speechFile, buffer);
+
+    const s3Url = await uploadAudioToS3(buffer, speechFile);
+
+    return s3Url;
   }
 
   private createSystemPrompt(ageRange: string): string {

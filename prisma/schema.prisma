@@ -32,8 +32,16 @@ model Story {
   characters String[]
   user       User     @relation(fields: [userId], references: [id])
   illustrations Illustration[]
-
+  audio Audio?
   @@index([userId])
+}
+
+model Audio {
+  id String @id @default(uuid())
+  url String
+  s3Key String
+  storyId String @unique
+  story Story @relation(fields: [storyId], references: [id])
 }
 
 model Illustration {

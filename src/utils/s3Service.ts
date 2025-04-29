@@ -59,3 +59,24 @@ export async function uploadImageToS3(
     throw new Error(`Failed to upload image to S3: ${error}`);
   }
 }
+
+export async function uploadAudioToS3(
+  file: Buffer,
+  filename: string
+): Promise<any> {
+  const s3Key = `stories/${filename}`;
+
+  const command = new PutObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: s3Key,
+    Body: file,
+    ContentType: 'audio/mpeg'
+  });
+
+  await s3Client.send(command);
+
+  const s3Url = `https://${BUCKET_NAME}.s3.amazonaws.com/${s3Key}`;
+  console.log(`Upload successful. S3 URL: ${s3Url}`);
+
+  return s3Url;
+}
