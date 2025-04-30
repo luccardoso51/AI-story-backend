@@ -216,7 +216,8 @@ router.delete('/:id', (async (req, res) => {
     const story = await prisma.story.findUnique({
       where: { id },
       include: {
-        illustrations: true
+        illustrations: true,
+        audio: true
       }
     });
 
@@ -233,6 +234,12 @@ router.delete('/:id', (async (req, res) => {
     // First delete all related illustrations
     if (story.illustrations.length > 0) {
       await prisma.illustration.deleteMany({
+        where: { storyId: id }
+      });
+    }
+
+    if (story.audio) {
+      await prisma.audio.delete({
         where: { storyId: id }
       });
     }
