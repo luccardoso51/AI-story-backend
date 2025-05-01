@@ -1,6 +1,8 @@
 import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+
 import { uploadAudioToS3 } from '../utils/s3Service';
 
 const speechFile = path.resolve('./speech.mp3');
@@ -73,7 +75,9 @@ export class StoryGeneratorService {
     const buffer = Buffer.from(await response.arrayBuffer());
     await fs.promises.writeFile(speechFile, buffer);
 
-    const s3Url = await uploadAudioToS3(buffer, speechFile);
+    const filename = `audio_${uuidv4()}.mp3`;
+
+    const s3Url = await uploadAudioToS3(buffer, filename);
 
     return s3Url;
   }
@@ -86,6 +90,8 @@ export class StoryGeneratorService {
     3. Have a clear beginning, middle, and end
     4. Include a subtle moral lesson
     5. Use simple language for young readers
+    6. Be imaginative and creative
+    7. Don't start with "Once upon a time" or similar phrases
     
     Format the response with "Title: [Story Title]" on the first line, followed by the story content.`;
   }
