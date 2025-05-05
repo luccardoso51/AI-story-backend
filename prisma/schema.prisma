@@ -14,11 +14,27 @@ datasource db {
 }
 
 model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  name          String
+  password      String
+  createdAt     DateTime       @default(now())
+  stories       Story[]
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
   id        String   @id @default(uuid())
-  email     String   @unique
-  name      String
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-  stories   Story[]
+  expiresAt DateTime
+  isValid   Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+  
+
+  @@index([userId])
 }
 
 model Story {

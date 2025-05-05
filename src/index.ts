@@ -4,6 +4,7 @@ import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import storyRoutes from './routes/storyRoutes';
 import illustrationRoutes from './routes/illustrationRoutes';
+import authRoutes from './routes/authRoutes';
 
 const prisma = new PrismaClient();
 const app: Application = express();
@@ -36,7 +37,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/stories', storyRoutes);
 app.use('/illustrations', illustrationRoutes);
-
+app.use('/auth', authRoutes);
 const PORT = process.env.PORT || 8888;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
