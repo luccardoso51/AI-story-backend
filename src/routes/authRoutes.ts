@@ -14,43 +14,6 @@ import { generateTokens } from '../utils/jwt';
 import bcrypt from 'bcrypt';
 const router = Router();
 
-/**
- * @swagger
- * /auth/register:
- *   post:
- *     summary: Register a new user
- *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *               - name
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
- *                 format: password
- *               name:
- *                 type: string
- *     responses:
- *       201:
- *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Auth'
- *       400:
- *         description: User already exists or missing required fields
- *       500:
- *         description: Server error
- */
 router.post('/register', async (req, res) => {
   try {
     const { email, password, name } = req.body;
@@ -82,42 +45,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /auth/login:
- *   post:
- *     summary: Login a user
- *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
- *                 format: password
- *     responses:
- *       200:
- *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Auth'
- *       400:
- *         description: User does not exist or missing fields
- *       401:
- *         description: Invalid credentials
- *       500:
- *         description: Server error
- */
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -159,37 +86,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /auth/refresh-token:
- *   post:
- *     summary: Refresh access token
- *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - refreshToken
- *             properties:
- *               refreshToken:
- *                 type: string
- *     responses:
- *       200:
- *         description: Token refreshed successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Auth'
- *       400:
- *         description: Missing refresh token
- *       401:
- *         description: Invalid or expired refresh token
- *       500:
- *         description: Server error
- */
 router.post('/refresh-token', async (req, res) => {
   try {
     const { refreshToken } = req.body;
@@ -236,30 +132,8 @@ router.post('/refresh-token', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /auth/revoke-refresh-tokens:
- *   post:
- *     summary: Revoke all refresh tokens for a user
- *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - userId
- *             properties:
- *               userId:
- *                 type: string
- *                 format: uuid
- *     responses:
- *       200:
- *         description: Tokens revoked successfully
- *       500:
- *         description: Server error
- */
+// This endpoint is only for demo purpose.
+// Move this logic where you need to revoke the tokens( for ex, on password reset)
 router.post('/revoke-refresh-tokens', async (req, res) => {
   try {
     const { userId } = req.body;
