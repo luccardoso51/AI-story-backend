@@ -1,12 +1,12 @@
 import 'dotenv/config';
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import { PrismaClient } from '@prisma/client';
 import storyRoutes from './routes/storyRoutes';
 import illustrationRoutes from './routes/illustrationRoutes';
 import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
+import { specs, swaggerUi } from './swagger';
 
-const prisma = new PrismaClient();
 const app: Application = express();
 
 // Add these middlewares first
@@ -31,14 +31,40 @@ app.use((req, res, next) => {
   next();
 });
 
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Server health check endpoint
+ *     description: Returns a message to confirm the API is running
+ *     responses:
+ *       200:
+ *         description: The API is running properly
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ */
 app.get('/', (req: Request, res: Response) => {
   res.send('AI Story Generator Backend is running with TypeScript! 🚀');
 });
 
+app.use('/users', userRoutes);
 app.use('/stories', storyRoutes);
 app.use('/illustrations', illustrationRoutes);
 app.use('/auth', authRoutes);
+
+// Swagger Documentation
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(specs, { explorer: true })
+);
+
 const PORT = process.env.PORT || 8888;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(
+    `📝 API Documentation available at http://localhost:${PORT}/api-docs`
+  );
 });

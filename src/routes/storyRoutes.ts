@@ -6,6 +6,45 @@ const router = Router();
 const prisma = new PrismaClient();
 const storyGenerator = new StoryGeneratorService();
 
+/**
+ * @swagger
+ * /stories/generate-story:
+ *   post:
+ *     summary: Generate a new AI story
+ *     tags: [Stories]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - ageRange
+ *             properties:
+ *               ageRange:
+ *                 type: string
+ *                 description: Target age range for the story
+ *               title:
+ *                 type: string
+ *                 description: Optional suggested title
+ *               characters:
+ *                 type: string
+ *                 description: Optional character descriptions
+ *               setting:
+ *                 type: string
+ *                 description: Optional setting details
+ *     responses:
+ *       201:
+ *         description: Story generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Story'
+ *       400:
+ *         description: Missing required fields
+ *       500:
+ *         description: Server error or AI generation error
+ */
 router.post('/generate-story', (async (req, res) => {
   const { ageRange, title, characters, setting } = req.body;
   const defaultUserId = 'd5cc9ace-4d00-442f-b364-ec1f1908df3a';
@@ -74,7 +113,24 @@ router.post('/generate-story', (async (req, res) => {
   }
 }) as RequestHandler);
 
-// Get all stories with user information
+/**
+ * @swagger
+ * /stories:
+ *   get:
+ *     summary: Get all stories
+ *     tags: [Stories]
+ *     responses:
+ *       200:
+ *         description: List of all stories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Story'
+ *       500:
+ *         description: Server error
+ */
 router.get('/', async (req, res) => {
   try {
     const stories = await prisma.story.findMany({
@@ -104,7 +160,32 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get a specific story with user information
+/**
+ * @swagger
+ * /stories/{id}:
+ *   get:
+ *     summary: Get a specific story by ID
+ *     tags: [Stories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Story ID
+ *     responses:
+ *       200:
+ *         description: Story details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Story'
+ *       404:
+ *         description: Story not found
+ *       500:
+ *         description: Server error
+ */
 router.get('/:id', (async (req, res) => {
   const { id } = req.params;
   try {
@@ -128,7 +209,51 @@ router.get('/:id', (async (req, res) => {
   }
 }) as RequestHandler);
 
-// Create a new story
+/**
+ * @swagger
+ * /stories:
+ *   post:
+ *     summary: Create a new story manually
+ *     tags: [Stories]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - content
+ *               - ageRange
+ *               - userId
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               author:
+ *                 type: string
+ *               ageRange:
+ *                 type: string
+ *               userId:
+ *                 type: string
+ *                 format: uuid
+ *               characters:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Story created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Story'
+ *       400:
+ *         description: Missing required fields
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 router.post('/', (async (req, res) => {
   const { title, content, author, ageRange, userId, characters } = req.body;
 
@@ -174,7 +299,34 @@ router.post('/', (async (req, res) => {
   }
 }) as RequestHandler);
 
-// Get stories by user ID
+/**
+ * @swagger
+ * /stories/user/{userId}:
+ *   get:
+ *     summary: Get all stories by a specific user
+ *     tags: [Stories]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: List of user's stories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Story'
+ *       404:
+ *         description: No stories found for this user
+ *       500:
+ *         description: Server error
+ */
 router.get('/user/:userId', (async (req, res) => {
   const { userId } = req.params;
   try {
@@ -205,7 +357,30 @@ router.get('/user/:userId', (async (req, res) => {
   }
 }) as RequestHandler);
 
-// Delete a story (with user verification)
+/**
+ * @swagger
+ * /stories/{id}:
+ *   delete:
+ *     summary: Delete a story
+ *     tags: [Stories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Story ID
+ *     responses:
+ *       200:
+ *         description: Story deleted successfully
+ *       403:
+ *         description: Not authorized to delete this story
+ *       404:
+ *         description: Story not found
+ *       500:
+ *         description: Server error
+ */
 router.delete('/:id', (async (req, res) => {
   const { id } = req.params;
   // const { userId } = req.body; // In real app, this would come from auth token
